@@ -56,7 +56,8 @@ workdir="$SLURM_SUBMIT_DIR"  # The value of SLURM_SUBMIT_DIR sets workdir to the
 
 
 
-cd $workdir
+# cd $workdir
+cd itsgiving
 
 JOBID=$SLURM_JOB_ID
 
@@ -70,7 +71,8 @@ echo "Arguments passed to SLURM script: $@"
 source venv/bin/activate 
 
 # Install requirements
-pip install -r requirements.txt
+# pip install -r requirements.txt
+pip install openai
 
 # Run the Python script
-python separate_text_by_colleges_cambridge.py
+python separate_text_by_colleges_oxford_openai.py
