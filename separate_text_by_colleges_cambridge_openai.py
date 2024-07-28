@@ -1,14 +1,14 @@
-import openai
+from openai import OpenAI
 import json
 import os
 import time
 import random
 
 input_filename = 'data/camfess_data_text_only.json'
-output_filename = 'data/camfess_by_colleges.json'
+output_filename = 'data/camfess_by_colleges_openai.json'
 
-# Set your OpenAI API key
-openai.api_key = 'your-openai-api-key-here'
+# Initialize the OpenAI client
+client = OpenAI(api_key='sk-None-i5FFVSYCimMRGINGB4btT3BlbkFJMBMKBfXKUyHKgRoL2D5g')
 
 # Comprehensive list of Cambridge colleges
 cambridge_colleges = [
@@ -43,8 +43,8 @@ def process_text_block(text_block, max_retries=10):
 
     for attempt in range(max_retries):
         try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",  # or "gpt-4" if you have access
+            response = client.chat.completions.create(
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"Here's the text block to process:\n\n{text_block}"}
@@ -54,7 +54,7 @@ def process_text_block(text_block, max_retries=10):
             )
 
             # Extract the JSON from the response
-            response_content = response['choices'][0]['message']['content']
+            response_content = response.choices[0].message.content.strip()
             json_start = response_content.index('{')
             json_end = response_content.rindex('}') + 1
             json_str = response_content[json_start:json_end]
