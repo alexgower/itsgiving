@@ -4,21 +4,34 @@ import os
 import time
 import random
 
-input_filename = 'data/camfess_data_text_only.json'
-output_filename = 'data/camfess_by_colleges.json'
+input_filename = 'data/oxfess_data_text_only.json'
+output_filename = 'data/oxfess_by_colleges_new.json'
 
 # Initialize the Anthropic client
 client = anthropic.Anthropic(api_key='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')
 
 # Comprehensive list of Cambridge colleges
-cambridge_colleges = [
-    "Christ's", "Churchill", "Clare", "Clare Hall", "Corpus Christi",
-    "Darwin", "Downing", "Emmanuel", "Fitzwilliam", "Girton",
-    "Gonville and Caius", "Homerton", "Hughes Hall", "Jesus", "King's",
-    "Lucy Cavendish", "Magdalene", "Murray Edwards", "Newnham", "Pembroke",
-    "Peterhouse", "Queens'", "Robinson", "Selwyn", "Sidney Sussex",
-    "St Catharine's", "St Edmund's", "St John's", "Trinity", "Trinity Hall", "Wolfson", "None"
+# cambridge_colleges = [
+#     "Christ's", "Churchill", "Clare", "Clare Hall", "Corpus Christi",
+#     "Darwin", "Downing", "Emmanuel", "Fitzwilliam", "Girton",
+#     "Gonville and Caius", "Homerton", "Hughes Hall", "Jesus", "King's",
+#     "Lucy Cavendish", "Magdalene", "Murray Edwards", "Newnham", "Pembroke",
+#     "Peterhouse", "Queens'", "Robinson", "Selwyn", "Sidney Sussex",
+#     "St Catharine's", "St Edmund's", "St John's", "Trinity", "Trinity Hall", "Wolfson", "None"
+# ]
+
+oxford_colleges = [
+    "All Souls", "Balliol", "Blackfriars", "Brasenose", "Campion Hall",
+    "Christ Church", "Corpus Christi", "Exeter", "Green Templeton",
+    "Harris Manchester", "Hertford", "Jesus", "Keble", "Kellogg",
+    "Lady Margaret Hall", "Linacre", "Lincoln", "Magdalen", "Mansfield",
+    "Merton", "New College", "Nuffield", "Oriel", "Pembroke", "Queen's",
+    "Regent's Park", "Reuben", "Somerville", "St Anne's", "St Antony's",
+    "St Catherine's", "St Cross", "St Edmund Hall", "St Hilda's", "St Hugh's",
+    "St John's", "St Peter's", "St Stephen's House", "Trinity", "University",
+    "Wadham", "Wolfson", "Worcester", "Wycliffe Hall", "OUCA", "Union", "None"
 ]
+
 
 def process_text_block(text_block, max_retries=10):
     system_prompt = f"""
@@ -27,16 +40,13 @@ def process_text_block(text_block, max_retries=10):
     The JSON should only have college names and 'associated_text' as the fields and nothing else. 
 
     Here's the list of Cambridge colleges to consider:
-    {', '.join(cambridge_colleges)}
+    {', '.join(oxford_colleges)}
 
     Only include colleges from this list in your JSON output. If a college from this list is not mentioned in the text block, do not include it in the JSON output. 
     
     When matching college names, please be flexible with capitalization, common abbreviations, and minor typos.
 
     Also, if text is not associated with any college in this list, please include it under the key 'None'.
-
-    Extra notes: 
-    - 'sidge' is not a college
     
     Provide only the JSON output, with no additional explanation.
     """
