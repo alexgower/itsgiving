@@ -1,43 +1,41 @@
-import anthropic
+from openai import OpenAI
 import json
 import os
 import time
 import random
 
-input_filename = 'data/camfess_data_text_only.json'
-output_filename = 'data/camfess_by_colleges_anthropic.json'
+input_filename = 'data/oxfess_data_text_only.json'
+output_filename = 'data/oxfess_by_colleges_openai.json'
 
-# Initialize the Anthropic client
-client = anthropic.Anthropic(api_key='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')
+# Initialize the OpenAI client
+client = OpenAI(api_key='sk-None-i5FFVSYCimMRGINGB4btT3BlbkFJMBMKBfXKUyHKgRoL2D5g')
 
-# Comprehensive list of Cambridge colleges
-cambridge_colleges = [
-    "Christ's", "Churchill", "Clare", "Clare Hall", "Corpus Christi",
-    "Darwin", "Downing", "Emmanuel", "Fitzwilliam", "Girton",
-    "Gonville and Caius", "Homerton", "Hughes Hall", "Jesus", "King's",
-    "Lucy Cavendish", "Magdalene", "Murray Edwards", "Newnham", "Pembroke",
-    "Peterhouse", "Queens'", "Robinson", "Selwyn", "Sidney Sussex",
-    "St Catharine's", "St Edmund's", "St John's", "Trinity", "Trinity Hall", "Wolfson", "None"
+oxford_colleges = [
+    "All Souls", "Balliol", "Blackfriars", "Brasenose", "Campion Hall",
+    "Christ Church", "Corpus Christi", "Exeter", "Green Templeton",
+    "Harris Manchester", "Hertford", "Jesus", "Keble", "Kellogg",
+    "Lady Margaret Hall", "Linacre", "Lincoln", "Magdalen", "Mansfield",
+    "Merton", "New College", "Nuffield", "Oriel", "Pembroke", "Queen's",
+    "Regent's Park", "Reuben", "Somerville", "St Anne's", "St Antony's",
+    "St Catherine's", "St Cross", "St Edmund Hall", "St Hilda's", "St Hugh's",
+    "St John's", "St Peter's", "St Stephen's House", "Trinity", "University",
+    "Wadham", "Wolfson", "Worcester", "Wycliffe Hall", "OUCA", "Union", "None"
 ]
-
 
 def process_text_block(text_block, max_retries=10):
     system_prompt = f"""
-    You are an AI assistant specialized in extracting information about Cambridge colleges from text. 
+    You are an AI assistant specialized in extracting information about Oxford colleges from text. 
     Given a text block, create a JSON where each key is a college name and the value is the associated text for that college. 
     The JSON should only have college names and 'associated_text' as the fields and nothing else. 
 
-    Here's the list of Cambridge colleges to consider:
-    {', '.join(cambridge_colleges)}
+    Here's the list of Oxford colleges to consider:
+    {', '.join(oxford_colleges)}
 
     Only include colleges from this list in your JSON output. If a college from this list is not mentioned in the text block, do not include it in the JSON output. 
     
     When matching college names, please be flexible with capitalization, common abbreviations, and minor typos.
 
     Also, if text is not associated with any college in this list, please include it under the key 'None'.
-
-    Extra notes: 
-    - 'sidge' is not a college
     
     Provide only the JSON output, with no additional explanation.
     """
@@ -46,18 +44,18 @@ def process_text_block(text_block, max_retries=10):
 
     for attempt in range(max_retries):
         try:
-            response = client.messages.create(
-                model="claude-3-sonnet-20240229",
-                max_tokens=4000,
-                temperature=0,
-                system=system_prompt,
+            response = client.chat.completions.create(
+                model="gpt-4o",
                 messages=[
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
-                ]
+                ],
+                temperature=0,
+                max_tokens=1000
             )
 
             # Extract the JSON from the response
-            response_content = response.content[0].text
+            response_content = response.choices[0].message.content.strip()
             json_start = response_content.index('{')
             json_end = response_content.rindex('}') + 1
             json_str = response_content[json_start:json_end]
@@ -120,6 +118,6 @@ for item_index, item in enumerate(input_data):
         print(f"Failed to process item {item_index + 1}: {e}")
     
     # Add a small delay between requests to help avoid rate limiting
-    # time.sleep(1.2)  # This ensures we don't exceed 50 requests per minute
+    time.sleep(1.2)  # This ensures we don't exceed OpenAI's rate limits
 
 print(f"Processed all items. Results saved to {output_filename}")

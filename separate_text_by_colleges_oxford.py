@@ -5,7 +5,7 @@ import time
 import random
 
 input_filename = 'data/oxfess_data_text_only.json'
-output_filename = 'data/oxfess_by_colleges_new.json'
+output_filename = 'data/oxfess_by_colleges_anthropic.json'
 
 # Initialize the Anthropic client
 client = anthropic.Anthropic(api_key='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')
