@@ -10,15 +10,6 @@ output_filename = 'data/oxfess_by_colleges_anthropic.json'
 # Initialize the Anthropic client
 client = anthropic.Anthropic(api_key='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')
 
-# Comprehensive list of Cambridge colleges
-# cambridge_colleges = [
-#     "Christ's", "Churchill", "Clare", "Clare Hall", "Corpus Christi",
-#     "Darwin", "Downing", "Emmanuel", "Fitzwilliam", "Girton",
-#     "Gonville and Caius", "Homerton", "Hughes Hall", "Jesus", "King's",
-#     "Lucy Cavendish", "Magdalene", "Murray Edwards", "Newnham", "Pembroke",
-#     "Peterhouse", "Queens'", "Robinson", "Selwyn", "Sidney Sussex",
-#     "St Catharine's", "St Edmund's", "St John's", "Trinity", "Trinity Hall", "Wolfson", "None"
-# ]
 
 oxford_colleges = [
     "All Souls", "Balliol", "Blackfriars", "Brasenose", "Campion Hall",
