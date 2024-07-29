@@ -24,7 +24,7 @@ oxford_colleges = [
 ]
 
 
-def process_text_block(text_block, max_retries=10):
+def process_text_block(text_block, max_retries=5):
     system_prompt = f"""
     You are an AI assistant specialized in extracting information about Cambridge colleges from text. 
     Given a text block, create a JSON where each key is a college name and the value is the associated text for that college. 

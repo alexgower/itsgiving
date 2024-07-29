@@ -22,7 +22,7 @@ oxford_colleges = [
     "Wadham", "Wolfson", "Worcester", "Wycliffe Hall", "OUCA", "Union", "None"
 ]
 
-def process_text_block(text_block, max_retries=10):
+def process_text_block(text_block, max_retries=5):
     system_prompt = f"""
     You are an AI assistant specialized in extracting information about Oxford colleges from text. 
     Given a text block, create a JSON where each key is a college name and the value is the associated text for that college. 
@@ -118,6 +118,6 @@ for item_index, item in enumerate(input_data):
         print(f"Failed to process item {item_index + 1}: {e}")
     
     # Add a small delay between requests to help avoid rate limiting
-    time.sleep(1.2)  # This ensures we don't exceed OpenAI's rate limits
+    # time.sleep(1.2)  # This ensures we don't exceed OpenAI's rate limits
 
 print(f"Processed all items. Results saved to {output_filename}")
