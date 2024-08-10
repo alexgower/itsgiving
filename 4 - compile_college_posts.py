@@ -2,8 +2,8 @@ import json
 from collections import defaultdict
 
 # TODO repeat this once openai extraction is complete
-input_filename = 'data/oxfess_by_colleges_openai.json'
-output_filename = 'data/oxfess_data_college_compilation.json'
+input_filename = 'data/camfess_by_colleges_openai.json'
+output_filename = 'data/camfess_data_college_compilation.json'
 
 # Read the input JSON file
 with open(input_filename, 'r') as f:
@@ -19,11 +19,12 @@ for post in data:
     colleges = post['colleges']
     
     # Add the post to each mentioned college, ignoring 'None'
+    # Also remove any colons from strings in text
     for college, text in colleges.items():
         if college != 'None':
             college_posts[college].append({
                 'postId': post_id,
-                'text': text
+                'text': text.replace(':', '')
             })
 
 # Convert defaultdict to regular dict for JSON serialization

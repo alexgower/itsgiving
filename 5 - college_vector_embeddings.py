@@ -1,20 +1,94 @@
 import numpy as np
 from gensim.models import KeyedVectors
 from sklearn.metrics.pairwise import cosine_similarity
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from scipy.linalg import svd
 import json
 
 
-college_posts_compilation_filename = 'data/camfess_data_college_compilation.json'
+### COLLEGES CONFIGURATION ###
+
+university = "oxford"
+undergrad_colleges_only = True
+
+college_posts_compilation_filename = 'data/oxfess_data_college_compilation.json' if university == "oxford" else 'data/camfess_data_college_compilation.json'
+
+oxford_undergraduate_colleges  = [
+    "All Souls", "Balliol", "Brasenose",
+    "Christ Church", "Corpus Christi", "Exeter",
+    "Harris Manchester", "Hertford", "Jesus", "Keble",
+    "Lady Margaret Hall", "Lincoln", "Magdalen", "Mansfield",
+    "Merton", "New College", "Oriel", "Pembroke", "Queen's",
+    "Reuben", "Somerville", "St Anne's", 
+    "St Catherine's", "St Edmund Hall", "St Hilda's", "St Hugh's",
+    "St John's", "St Peter's", "Trinity", "University",
+    "Wadham",  "Worcester", "OUCA", "Union",
+]
+
+oxford_colleges = [
+    "All Souls", "Balliol", "Blackfriars", "Brasenose", "Campion Hall",
+    "Christ Church", "Corpus Christi", "Exeter", "Green Templeton",
+    "Harris Manchester", "Hertford", "Jesus", "Keble", "Kellogg",
+    "Lady Margaret Hall", "Linacre", "Lincoln", "Magdalen", "Mansfield",
+    "Merton", "New College", "Nuffield", "Oriel", "Pembroke", "Queen's",
+    "Regent's Park", "Reuben", "Somerville", "St Anne's", "St Antony's",
+    "St Catherine's", "St Cross", "St Edmund Hall", "St Hilda's", "St Hugh's",
+    "St John's", "St Peter's", "St Stephen's House", "Trinity", "University",
+    "Wadham", "Wolfson", "Worcester", "Wycliffe Hall", "OUCA", "Union", "None"
+]
+
+cambridge_undergraduate_colleges = cambridge_colleges = [
+    "Christ's", "Churchill", "Clare", "Corpus Christi",
+    "Downing", "Emmanuel", "Fitzwilliam", "Girton",
+    "Gonville and Caius", "Homerton", "Jesus", "King's",
+    "Magdalene", "Murray Edwards", "Newnham", "Pembroke",
+    "Peterhouse", "Queens'", "Robinson", "Selwyn", "Sidney Sussex",
+    "St Catharine's", "St John's", "Trinity", "Trinity Hall",
+]
+
+
+cambridge_colleges = [
+    "Christ's", "Churchill", "Clare", "Clare Hall", "Corpus Christi",
+    "Darwin", "Downing", "Emmanuel", "Fitzwilliam", "Girton",
+    "Gonville and Caius", "Homerton", "Hughes Hall", "Jesus", "King's",
+    "Lucy Cavendish", "Magdalene", "Murray Edwards", "Newnham", "Pembroke",
+    "Peterhouse", "Queens'", "Robinson", "Selwyn", "Sidney Sussex",
+    "St Catharine's", "St Edmund's", "St John's", "Trinity", "Trinity Hall", "Wolfson"
+]
+
+if university == "oxford":
+    if undergrad_colleges_only:
+        colleges_list = oxford_undergraduate_colleges
+    else:
+        colleges_list = oxford_colleges
+else:
+    if undergrad_colleges_only:
+        colleges_list = cambridge_undergraduate_colleges
+    else:
+        colleges_list = cambridge_colleges
+    
+
+
+
+
+
+### WORD VECTORS CONFIGURATION ###
 
 # Load pre-trained word vectors
 # TODO try with bigger model too
-# TODO try without limits
-word_vectors = KeyedVectors.load_word2vec_format('data/wiki-news-300d-1M.vec', binary=False, limit=200000)
+# TODO try without limits - would this be obvious as give errors if not though?
+word_vectors = KeyedVectors.load_word2vec_format('words/wiki-news-300d-1M.vec', binary=False, limit=200000)
 
 
-def create_name_vector_with_sentiment(text, model):
-    sia = SentimentIntensityAnalyzer()
+
+
+
+
+
+### CREATE COLLEGE VECTOR FUNCTIONS
+
+# Uses simple mean over word vectors
+def create_college_vector_avg(text, model):
     
     words = text.lower().split()
     word_vectors = [model[word] for word in words if word in model]
@@ -22,26 +96,67 @@ def create_name_vector_with_sentiment(text, model):
         return None
     
     # Calculate average word vector
-    # TODO make this better than an average eventually
     avg_vector = np.mean(word_vectors, axis=0)
-    
-    # Get sentiment scores
-    sentiment_scores = sia.polarity_scores(text)
-    sentiment_vector = np.array([
-        sentiment_scores['pos'],
-        sentiment_scores['neg'],
-        sentiment_scores['neu'],
-        sentiment_scores['compound']
-    ])
-
-    print("Sentiment vector: ", sentiment_vector)
-    
+        
     # Combine average word vector with sentiment vector
-    return np.concatenate([avg_vector, sentiment_vector])
+    return avg_vector
 
 
-def find_closest_college(word, name_vectors, model):
-    sia = SentimentIntensityAnalyzer()
+# Uses tfidf to weight word vectors by importance
+def create_college_vector_tfid(text, model, college_texts):
+    tfidf = TfidfVectorizer()
+    tfidf.fit(college_texts.values())  # Fit on all texts
+    
+    words = text.lower().split()
+    tfidf_scores = tfidf.transform([text]).toarray()[0]
+    word_vectors = []
+    weights = []
+    
+    for word, score in zip(tfidf.get_feature_names_out(), tfidf_scores):
+        if word in model and score > 0:
+            word_vectors.append(model[word])
+            weights.append(score)
+    
+    if not word_vectors:
+        return None
+    
+    weighted_avg = np.average(word_vectors, axis=0, weights=weights)
+    return weighted_avg
+
+
+# Uses SIF to weight word vectors by importance 
+# (and remove first principal component)
+def create_college_vector_sif(text, model, a=1e-3):
+    words = text.lower().split()
+    word_vectors = [model[word] for word in words if word in model]
+    if not word_vectors:
+        return None
+    
+    word_freqs = {word: model.get_vecattr(word, 'count') for word in words if word in model}
+    total_freq = sum(word_freqs.values())
+    
+    weighted_vectors = [model[word] * a / (a + word_freqs[word]/total_freq) for word in words if word in model]
+    weighted_avg = np.mean(weighted_vectors, axis=0)
+    
+    # Skip PCA for a single vector
+    if len(weighted_vectors) == 1:
+        return weighted_avg
+    
+    # Perform PCA
+    matrix = np.array(weighted_vectors)
+    matrix = matrix - np.mean(matrix, axis=0)
+    u, _, _ = svd(matrix, full_matrices=False)
+    pc = u[:, 0]
+    
+    return weighted_avg - pc.dot(pc.T).dot(weighted_avg)
+
+
+
+
+
+
+
+def find_closest_college(word, college_vectors, model):
     
     if word not in model:
         return "Word not found in the model"
@@ -49,37 +164,28 @@ def find_closest_college(word, name_vectors, model):
     # Get word vector
     word_vector = model[word]
     
-    # Get sentiment scores for the word
-    sentiment_scores = sia.polarity_scores(word)
-    sentiment_vector = np.array([
-        sentiment_scores['pos'],
-        sentiment_scores['neg'],
-        sentiment_scores['neu'],
-        sentiment_scores['compound']
-    ])
-    
-    # Combine word vector with sentiment vector
-    word_vector_with_sentiment = np.concatenate([word_vector, sentiment_vector])
-    
     # Calculate similarities
-    similarities = {name: cosine_similarity([word_vector_with_sentiment], [vec])[0][0] 
-                    for name, vec in name_vectors.items() if vec is not None}
+    similarities = {name: cosine_similarity([word_vector], [vec])[0][0] 
+                    for name, vec in college_vectors.items() if vec is not None}
     
-    # TODO maybe show top 3 or something
     # Sort similarities in descending order
     sorted_similarities = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
 
     # Get top 3 most similar colleges
-    # with angles
-    top_3_colleges = [college for college, _ in sorted_similarities[:3]]
+    # top_3_colleges = [college for college, _ in sorted_similarities[:3]]
+
+    # Get top 3 most similar colleges with similarity scores
+    top_3_colleges = [(college, score) for college, score in sorted_similarities[:3]]
+
     return top_3_colleges
 
-    # top_3_colleges = [college for college, _ in sorted_similarities[:3]]
-    # return top_3_colleges
-
-    # return max(similarities, key=similarities.get)
 
 
+
+
+
+
+### CREATE COLLEGE VECTORS ###
 
 # Gather text data for each college
 with open(college_posts_compilation_filename, 'r') as f:
@@ -92,41 +198,66 @@ college_texts = {}
 for college, posts in data.items():
     print(f"Processing college: {college}")
     # Join all texts for this college into one long string
-    college_texts[college] = " ".join(post['text'] for post in posts)
+    try: 
+        college_texts[college] = " ".join(post['text'] for post in posts if isinstance(post['text'], str))
+    except:
+        print(f"Error processing college: {college}")
+        for i, post in enumerate(posts):
+            print(i)
+            print(post)
 
     print(f"Text length: {len(college_texts[college])}")
 
-# Create name vectors
-name_vectors = {college: create_name_vector_with_sentiment(text, word_vectors) 
+
+print("")
+print("College vectors created successfully.")
+print("Colleges ordered by most text length: ", sorted(college_texts, key=lambda x: len(college_texts[x]), reverse=True))
+
+
+
+
+# Create all college vectors vectors
+all_college_vectors_avg = {college: create_college_vector_avg(text, word_vectors)
                 for college, text in college_texts.items()}
 
-# Example usage
-closest_name = find_closest_college("happy", name_vectors, word_vectors)
-print(f"The college most associated with 'happy' is: {closest_name}")
+all_college_vectors_tfid = {college: create_college_vector_tfid(text, word_vectors, college_texts) 
+                for college, text in college_texts.items()}
 
-closest_name = find_closest_college("sad", name_vectors, word_vectors)
-print(f"The college most associated with 'sad' is: {closest_name}")
+all_college_vectors_sif = {college: create_college_vector_sif(text, word_vectors)
+                for college, text in college_texts.items()}
 
-closest_name = find_closest_college("party", name_vectors, word_vectors)
-print(f"The college most associated with 'party' is: {closest_name}")
 
-closest_name = find_closest_college("study", name_vectors, word_vectors)
-print(f"The college most associated with 'study' is: {closest_name}")
+permitted_college_vectors_avg = {college: vec for college, vec in all_college_vectors_avg.items() if college in colleges_list}
+permitted_college_vectors_tfid = {college: vec for college, vec in all_college_vectors_tfid.items() if college in colleges_list}
+permitted_college_vectors_sif = {college: vec for college, vec in all_college_vectors_sif.items() if college in colleges_list}
 
-closest_name = find_closest_college("essay", name_vectors, word_vectors)
-print(f"The college most associated with 'essay' is: {closest_name}")
 
-closest_name = find_closest_college("queer", name_vectors, word_vectors)
-print(f"The college most associated with 'queer' is: {closest_name}")
 
-closest_name = find_closest_college("racist", name_vectors, word_vectors)
-print(f"The college most associated with 'racist' is: {closest_name}")
 
-closest_name = find_closest_college("racism", name_vectors, word_vectors)
-print(f"The college most associated with 'racism' is: {closest_name}")
 
-closest_name = find_closest_college("sporty", name_vectors, word_vectors)
-print(f"The college most associated with 'sporty' is: {closest_name}")
 
-closest_name = find_closest_college("jewish", name_vectors, word_vectors)
-print(f"The college most associated with 'jewish' is: {closest_name}")
+
+
+### EXAMPLE USAGE ###
+# TODO slider for all colleges or (default) undergrad colleges only
+# TODO slider for Avg or SIF or (default) Tfid
+words_to_test = ["happy", "sad", "party", "study", "essay", "queer", "racist", "sporty", "jewish", "christian", "muslim", "atheist",
+                 "conservative", "gay", "boring", "exciting", "stressful", "easy", "hard", "expensive", "cheap", "beautiful", "ugly", "far", 
+                 "girls", "women", "boys", "men", "football", "rugby", "rowing", "swimming", "pool", "gym", "library"]
+
+for word in words_to_test:
+    closest_colleges = find_closest_college(word, permitted_college_vectors_avg, word_vectors)
+    print(f"Avg: The colleges most associated with '{word}' are: {closest_colleges}")
+
+    closest_colleges = find_closest_college(word, permitted_college_vectors_tfid, word_vectors)
+    print(f"Tfid: The colleges most associated with '{word}' are: {closest_colleges}")
+
+    closest_colleges = find_closest_college(word, permitted_college_vectors_sif, word_vectors)
+    print(f"Sif: The colleges most associated with '{word}' are: {closest_colleges}")
+
+    print("")
+
+
+
+
+
