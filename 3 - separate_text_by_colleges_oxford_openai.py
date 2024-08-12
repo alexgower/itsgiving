@@ -15,8 +15,8 @@ oxford_colleges = [
     "Christ Church", "Corpus Christi", "Exeter", "Green Templeton",
     "Harris Manchester", "Hertford", "Jesus", "Keble", "Kellogg",
     "Lady Margaret Hall", "Linacre", "Lincoln", "Magdalen", "Mansfield",
-    "Merton", "New College", "Nuffield", "Oriel", "Pembroke", "Queen's",
-    "Regent's Park", "Reuben", "Somerville", "St Anne's", "St Antony's",
+    "Merton", "New", "Nuffield", "Oriel", "Pembroke", "Queen's",
+    "Regent's Park", "Reuben", "Somerville", "St Anne's", "St Anthony's",
     "St Catherine's", "St Cross", "St Edmund Hall", "St Hilda's", "St Hugh's",
     "St John's", "St Peter's", "St Stephen's House", "Trinity", "University",
     "Wadham", "Wolfson", "Worcester", "Wycliffe Hall", "OUCA", "Union", "None"
