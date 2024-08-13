@@ -243,19 +243,23 @@
           const universityLogos = document.querySelectorAll('.university-logo');
           const undergradCheckbox = document.getElementById('id_undergrad_only');
           const cambridgeLogo = document.querySelector('.university-logo[data-university="cambridge"]');
-          let currentUniversity = 'cambridge'; 
+          const oxfordLogo = document.querySelector('.university-logo[data-university="oxford"]');
+          let currentUniversity = '{{ university }}'; 
           let isUndergradOnly = true;
+
+          function setActiveUniversity(university) {
+            universityLogos.forEach(logo => {
+                logo.classList.remove('active');
+                if (logo.dataset.university === university) {
+                    logo.classList.add('active');
+                }
+            });
+            currentUniversity = university;
+        }
+        
+            // Set initial active university
+          setActiveUniversity(currentUniversity);
   
-          function setActiveUniversity(clickedLogo) {
-              universityLogos.forEach(logo => {
-                  logo.classList.remove('active');
-              });
-              clickedLogo.classList.add('active');
-              currentUniversity = clickedLogo.dataset.university;
-          }
-  
-          // Set Cambridge as default
-          setActiveUniversity(cambridgeLogo);
   
 
           // Toggle settings panel
@@ -325,11 +329,11 @@
           // Listen for changes in university images
           universityLogos.forEach(logo => {
             logo.addEventListener('click', function() {
-                setActiveUniversity(this);
+                setActiveUniversity(this.dataset.university);
                 updateColleges();
             });
-          });
-          
+        });
+        
 
           // Listen for changes on the undergrad checkbox
               undergradCheckbox.addEventListener('change', function() {

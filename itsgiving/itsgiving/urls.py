@@ -21,5 +21,6 @@ from wordinput.views import wordinput_view
 
 urlpatterns = [
     path('', wordinput_view, name='wordinputpage'),
+    path('<str:university>/', wordinput_view, name='university'),
     path('admin/', admin.site.urls),
 ]

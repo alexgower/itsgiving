@@ -7,7 +7,9 @@ from django.templatetags.static import static
 
 
 
-def wordinput_view(request):
+def wordinput_view(request, university="cambridge"):
+    if university not in ['oxford', 'cambridge']:
+        university = 'cambridge'  # Default to Cambridge if an invalid university is provided
 
     # If the request is a POST request, then we want to process the form data
     # (Django expects usual HTML form submission to be a POST request)
@@ -54,4 +56,5 @@ def wordinput_view(request):
     else:
         # If the request is not a POST request, create a new form instance (i.e. the user has not submitted the form yet)
         form = MainForm()
-        return render(request, 'wordinput/wordinput_form.html', {'form': form})
+        print("Passing University: ", university) # TODO remove
+        return render(request, 'wordinput/wordinput_form.html', {'form': form, 'university': university})

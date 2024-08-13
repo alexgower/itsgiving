@@ -2,4 +2,4 @@
 /.venv
 /venv
 /words
-itsgiving/wordinput/static/wordinput/data/wiki-news-300d-1M.vec
+/itsgiving/wordinput/static/wordinput/data/wiki-news-300d-1M.vec
