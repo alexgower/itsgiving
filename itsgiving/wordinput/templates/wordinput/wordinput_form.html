@@ -323,8 +323,21 @@
               });
           }
 
-          // Listen for input events on the textInput element
-          textInput.addEventListener('input', updateColleges);
+          // Prevent form submission
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+        });
+
+        // Rest of your existing JavaScript code...
+
+        // Update the existing textInput event listener
+        textInput.addEventListener('input', function(event) {
+            updateColleges();
+            // Prevent default behavior for the Enter key
+            if (event.inputType === 'insertLineBreak') {
+                event.preventDefault();
+            }
+        });
 
 
           // Listen for changes in university images
