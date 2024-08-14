@@ -1,0 +1,2 @@
+- Facebook scraping method: Apify
+- Google clone page to base website design on: https://codepen.io/quinn-codes-synthesis/pen/EOVJdG

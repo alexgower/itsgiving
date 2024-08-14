@@ -8,6 +8,7 @@ input_filename = 'data/oxfess_data_text_only.json'
 output_filename = 'data/oxfess_by_colleges_anthropic.json'
 
 # Initialize the Anthropic client
+# Remove key and skim through code before uploading to new public github repo and sharing on 'how it works'
 client = anthropic.Anthropic(api_key='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')
 
 

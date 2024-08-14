@@ -26,15 +26,15 @@
         <h1> How it works </h1>
 
         <b> Plain English </b>
-        <p> <i>itsgiving</i> uses data from Camfess and Oxfess to train a machine learning model to understand the semantic `vibes' of each college. When users input a new word, the machine learning model returns the top 3 colleges most associated with the vibe of that word.</p>
+        <p> <i>itsgiving</i> uses data from Camfess and Oxfess to train a machine learning model to understand the semantic `vibes' of each college. When users input a new word, the machine learning model returns the top 3 colleges most associated with the vibe of that word, even if that specific word has never been mentioned in relation to that college before.</p>
 
 
         <b> Technical Details </b>
         <p> We use the Word2Vec vector embedding model of words and data from Oxfess/Camfess, separated by college (with the separation done by the gpt-4o model from OpenAI). We generate a vector within this embedding space for each college, by using a weighted average over all words associated with that college (with weights corresponding to a TF-IDF measure of the significance of each word). When a user inputs a new word, we simply return the three top colleges whose vectors have the largest cosine similarities with the input word. </p>
     
-        <br>
-
-        <p> (Disclaimer: <i>itsgiving</i> is not affiliated with any university or institution and does not support any of the associations made by the ML model.) </p>
+        <b> Disclaimer </b>
+        <p> <i>itsgiving</i> is not affiliated with any university or institution and does not support any of the associations made by the ML model.</p>
+        <p> Also note that the model only learns words <i> relevant </i> to a given college. So, for instance, the college most associated with `football' might not be the college with the best football team, but rather the college where the word `football' is most frequently mentioned in the context of the college. </p>
     
     </div>
 
