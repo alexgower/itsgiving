@@ -1,0 +1,48 @@
+{% load static %} <!-- Load the static template tag library -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>it's giving</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+</head>
+
+
+
+
+
+<body>
+<header id="header-bar">
+    {% comment %} <span class="header-left header-footer-link">More</span> {% endcomment %}
+</header>
+
+
+
+<div id="main">
+   <a href="{% url 'wordinputpage' %}"><img src="{% static 'wordinput/images/its_giving_logo.png' %}" alt="it's giving logo" id="its-giving-logo"></a>
+
+    <div style="width:60%; margin: 0 auto;">
+        <h1> How it works </h1>
+
+        <b> Plain English </b>
+        <p> <i>itsgiving</i> uses data from Camfess and Oxfess to train a machine learning model to understand the semantic `vibes' of each college. When users input a new word, the machine learning model returns the top 3 colleges most associated with the vibe of that word.</p>
+
+
+        <b> Technical Details </b>
+        <p> We use the Word2Vec vector embedding model of words. We generate a vector within this embedding space for each college, by using a weighted average over all words in the Camfess/Oxfess posts associated with that college (with weights corresponding to a TF-IDF measure of the significance of each word). When a user inputs a new word, we simply return the three top colleges whose vectors have the largest cosine similarities with the input word. </p>
+    </div>
+
+    <p style="position: absolute; bottom: 10%;"> (Disclaimer: <i>itsgiving</i> is not affiliated with any university or institution and does not support any of the associations made by the ML model.) </p>
+
+</div>
+
+
+<footer id="footer-bar">
+<span class="footer-right header-footer-link"><a href="{% url 'how_it_works' %}" style="text-decoration: none;color: #5f6368;" class="footer-right header-footer-link">How it works</a></span>
+  <span><a href="https://buymeacoffee.com/alexgower" style="text-decoration: none;color: #5f6368;" class="footer-right header-footer-link">Buy me a coffee ☕</a></span>
+</footer>
+
+</body>
+
+</html>

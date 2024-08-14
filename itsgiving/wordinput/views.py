@@ -58,3 +58,8 @@ def wordinput_view(request, university="cambridge"):
         form = MainForm()
         print("Passing University: ", university) # TODO remove
         return render(request, 'wordinput/wordinput_form.html', {'form': form, 'university': university})
+
+
+
+def how_it_works_view(request):
+    return render(request, 'wordinput/how_it_works.html')

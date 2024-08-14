@@ -17,10 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from wordinput.views import wordinput_view
+from wordinput.views import wordinput_view, how_it_works_view
 
 urlpatterns = [
     path('', wordinput_view, name='wordinputpage'),
     path('<str:university>/', wordinput_view, name='university'),
+    path('how-it-works', how_it_works_view, name='how_it_works'),
     path('admin/', admin.site.urls),
 ]
