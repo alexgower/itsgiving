@@ -30,10 +30,14 @@
 
 
         <b> Technical Details </b>
-        <p> We use the Word2Vec vector embedding model of words. We generate a vector within this embedding space for each college, by using a weighted average over all words in the Camfess/Oxfess posts associated with that college (with weights corresponding to a TF-IDF measure of the significance of each word). When a user inputs a new word, we simply return the three top colleges whose vectors have the largest cosine similarities with the input word. </p>
+        <p> We use the Word2Vec vector embedding model of words and data from Oxfess/Camfess, separated by college (with the separation done by the gpt-4o model from OpenAI). We generate a vector within this embedding space for each college, by using a weighted average over all words associated with that college (with weights corresponding to a TF-IDF measure of the significance of each word). When a user inputs a new word, we simply return the three top colleges whose vectors have the largest cosine similarities with the input word. </p>
+    
+        <br>
+
+        <p> (Disclaimer: <i>itsgiving</i> is not affiliated with any university or institution and does not support any of the associations made by the ML model.) </p>
+    
     </div>
 
-    <p style="position: absolute; bottom: 10%;"> (Disclaimer: <i>itsgiving</i> is not affiliated with any university or institution and does not support any of the associations made by the ML model.) </p>
 
 </div>
 
