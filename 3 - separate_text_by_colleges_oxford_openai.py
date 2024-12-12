@@ -8,7 +8,7 @@ input_filename = 'data/oxfess_data_text_only.json'
 output_filename = 'data/oxfess_by_colleges_openai.json'
 
 # Initialize the OpenAI client
-client = OpenAI(api_key='sk-None-i5FFVSYCimMRGINGB4btT3BlbkFJMBMKBfXKUyHKgRoL2D5g')
+client = OpenAI(api_key='XXX')
 
 oxford_colleges = [
     "All Souls", "Balliol", "Blackfriars", "Brasenose", "Campion Hall",
